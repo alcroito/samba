@@ -1,3 +1,4 @@
+#FROM arm64v8/alpine:edge
 FROM arm64v8/alpine:edge
 #COPY qemu-aarch64-static /usr/bin/
 MAINTAINER David Personette <dperson@gmail.com>
@@ -8,7 +9,8 @@ RUN apk --no-cache --no-progress upgrade && \
     addgroup -S smb && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser &&\
     file="/etc/samba/smb.conf" && \
-    sed -i 's|^;* *\(log file = \).*|   \1/dev/stdout|' $file && \
+    sed -i 's|^;* *\(log file = \).*| |' $file && \
+    sed -i 's|^;* *\(max log size = \).*| |' $file && \
     sed -i 's|^;* *\(load printers = \).*|   \1no|' $file && \
     sed -i 's|^;* *\(printcap name = \).*|   \1/dev/null|' $file && \
     sed -i 's|^;* *\(printing = \).*|   \1bsd|' $file && \
@@ -60,8 +62,8 @@ COPY samba.sh /usr/bin/
 
 EXPOSE 137/udp 138/udp 139 445
 
-HEALTHCHECK --interval=60s --timeout=15s \
-            CMD smbclient -L \\localhost -U % -m SMB3
+#HEALTHCHECK --interval=60s --timeout=15s \
+            #CMD smbclient -L \\localhost -U % -m SMB3
 
 VOLUME ["/etc", "/var/cache/samba", "/var/lib/samba", "/var/log/samba",\
             "/run/samba"]
